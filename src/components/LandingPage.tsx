@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState, useEffect } from 'react';
 import { Heart, Brain, Shield, Users, Star, ChevronRight,  } from 'lucide-react';
+import Image from 'next/image';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -66,11 +67,13 @@ export default function LandingPage() {
               <div className="flex justify-center mb-8">
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 rounded-3xl blur-xl opacity-60 animate-pulse group-hover:opacity-80 transition-opacity duration-500"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-300 to-blue-400 rounded-3xl blur-2xl opacity-30 animate-ping"></div>
-                  <img 
-                    src="/download.png" 
-                    alt="Aditya University Logo" 
+                  <Image
+                    src="/logos.webp"
+                    alt="Aditya University Logo"
+                    width={128}
+                    height={128}
                     className="relative w-32 h-32 object-contain bg-white rounded-3xl p-4 shadow-2xl transform group-hover:scale-105 transition-all duration-300 border-2 border-blue-200/30"
+                    priority
                   />
                 </div>
               </div>
