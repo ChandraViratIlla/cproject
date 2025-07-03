@@ -138,7 +138,7 @@ const printStyles = `
 const SummaryContent = () => {
   const searchParams = useSearchParams();
 
-  // Extract consent form data
+  // Extract consent form data with fallback
   const consentData = {
     name: searchParams.get('name') || 'Not Provided',
     rollNumber: searchParams.get('rollNumber') || 'Not Provided',

@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, CheckCircle, Circle, Lock, Users, Brain, Target, Lightbulb } from 'lucide-react';
 
-import { Card, CardContent,  CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Button } from '@/components/ui/button';
@@ -72,7 +72,8 @@ const assessmentQuestions: { [key: string]: { name: string; questions: string[];
   },
   'assessment-5': {
     name: 'Motivation and Goals',
-    icon: <Target className="w-6 h-6" />,
+    icon: <Target className="wupdates to assessment.tsx to include rollNumber, phoneNumber, and counselorName
+6 h-6" />,
     color: 'from-indigo-500 to-blue-500',
     gradient: 'from-indigo-50 to-blue-50',
     questions: [
@@ -140,7 +141,7 @@ const likertOptions = [
   },
   { 
     value: 'agree', 
-    label: 'Agree', 
+    label: ' Agree', 
     color: 'from-purple-400 to-purple-500', 
     bgColor: 'bg-purple-50 border-purple-200 hover:bg-purple-100' 
   },
@@ -169,8 +170,9 @@ export default function Assessment({ params }: { params: { id: string } }) {
 
   const consentData = {
     name: searchParams.get('name') || 'Not Provided',
-    studentSignature: searchParams.get('studentSignature') || 'Not Provided',
-    counselorSignature: searchParams.get('counselorSignature') || 'Not Provided',
+    rollNumber: searchParams.get('rollNumber') || 'Not Provided',
+    phoneNumber: searchParams.get('phoneNumber') || 'Not Provided',
+    counselorName: searchParams.get('counselorName') || 'Not Provided',
     signatureDate: searchParams.get('signatureDate') || 'Not Provided',
   };
 
@@ -247,8 +249,9 @@ export default function Assessment({ params }: { params: { id: string } }) {
     if (nextIndex < numAssessments) {
       const query = new URLSearchParams({
         name: consentData.name,
-        studentSignature: consentData.studentSignature,
-        counselorSignature: consentData.counselorSignature,
+        rollNumber: consentData.rollNumber,
+        phoneNumber: consentData.phoneNumber,
+        counselorName: consentData.counselorName,
         signatureDate: consentData.signatureDate,
         selectedAssessments: selectedAssessments.join(','),
         currentAssessmentIndex: nextIndex.toString(),
@@ -258,8 +261,9 @@ export default function Assessment({ params }: { params: { id: string } }) {
     } else {
       const query = new URLSearchParams({
         name: consentData.name,
-        studentSignature: consentData.studentSignature,
-        counselorSignature: consentData.counselorSignature,
+        rollNumber: consentData.rollNumber,
+        phoneNumber: consentData.phoneNumber,
+        counselorName: consentData.counselorName,
         signatureDate: consentData.signatureDate,
         selectedAssessments: selectedAssessments.join(','),
         hasAssessment: 'true',

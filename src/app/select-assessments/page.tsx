@@ -20,8 +20,9 @@ const SelectAssessmentsContent = () => {
   // Extract consent form data
   const consentData = {
     name: searchParams.get('name') || 'Not Provided',
-    studentSignature: searchParams.get('studentSignature') || 'Not Provided',
-    counselorSignature: searchParams.get('counselorSignature') || 'Not Provided',
+    rollNumber: searchParams.get('rollNumber') || 'Not Provided',
+    phoneNumber: searchParams.get('phoneNumber') || 'Not Provided',
+    counselorName: searchParams.get('counselorName') || 'Not Provided',
     signatureDate: searchParams.get('signatureDate') || 'Not Provided',
   };
 
@@ -136,11 +137,12 @@ const SelectAssessmentsContent = () => {
       return indexA - indexB;
     });
 
-    // Pass consent data and selected assessments to the first assessment page
+    // Pass all consent data and selected assessments to the first assessment page
     const query = new URLSearchParams({
       name: consentData.name,
-      studentSignature: consentData.studentSignature,
-      counselorSignature: consentData.counselorSignature,
+      rollNumber: consentData.rollNumber,
+      phoneNumber: consentData.phoneNumber,
+      counselorName: consentData.counselorName,
       signatureDate: consentData.signatureDate,
       selectedAssessments: sortedAssessments.join(','),
       currentAssessmentIndex: '0', // Start with the first selected assessment
