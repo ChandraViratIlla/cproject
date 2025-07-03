@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aditya Psychometric Assessment System",
+  title: "Aditya University Psychometric Assessment System",
   description: "A confidential platform for Aditya University students to complete psychometric assessments, supporting personal growth and wellness through the Counseling & Wellness Center.",
 };
 
