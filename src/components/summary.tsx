@@ -1,19 +1,19 @@
 "use client";
-import { useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Suspense } from 'react';
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
 
 // Define assessment names for display
 const assessmentNames: { [key: string]: string } = {
-  'assessment-1': 'Assessment-1: Social Skills',
-  'assessment-2': 'Assessment-2: Emotional Awareness',
-  'assessment-3': 'Assessment-3: Stress Management',
-  'assessment-4': 'Assessment-4: Team Dynamics',
-  'assessment-5': 'Assessment-5: Motivation and Goals',
-  'assessment-6': 'Assessment-6: Problem Solving',
+  "assessment-1": "Assessment-1: Social Skills",
+  "assessment-2": "Assessment-2: Emotional Awareness",
+  "assessment-3": "Assessment-3: Stress Management",
+  "assessment-4": "Assessment-4: Team Dynamics",
+  "assessment-5": "Assessment-5: Motivation and Goals",
+  "assessment-6": "Assessment-6: Problem Solving",
 };
 
 // Enhanced print styles for complete consent form
@@ -140,20 +140,21 @@ const SummaryContent = () => {
 
   // Extract consent form data with fallback
   const consentData = {
-    name: searchParams.get('name') || 'Not Provided',
-    rollNumber: searchParams.get('rollNumber') || 'Not Provided',
-    phoneNumber: searchParams.get('phoneNumber') || 'Not Provided',
-    counselorName: searchParams.get('counselorName') || 'Not Provided',
-    signatureDate: searchParams.get('signatureDate') || 'Not Provided',
+    name: searchParams.get("name") || "Not Provided",
+    rollNumber: searchParams.get("rollNumber") || "Not Provided",
+    phoneNumber: searchParams.get("phoneNumber") || "Not Provided",
+    counselorName: searchParams.get("counselorName") || "Not Provided",
+    signatureDate: searchParams.get("signatureDate") || "Not Provided",
   };
 
-  const hasAssessment = searchParams.get('hasAssessment') === 'true';
-  const selectedAssessments = searchParams.get('selectedAssessments')?.split(',') || [];
+  const hasAssessment = searchParams.get("hasAssessment") === "true";
+  const selectedAssessments =
+    searchParams.get("selectedAssessments")?.split(",") || [];
 
   // Retrieve scores from localStorage (client-side only)
   const getScores = () => {
-    if (typeof window !== 'undefined') {
-      return JSON.parse(localStorage.getItem('assessmentScores') || '{}');
+    if (typeof window !== "undefined") {
+      return JSON.parse(localStorage.getItem("assessmentScores") || "{}");
     }
     return {};
   };
@@ -162,15 +163,15 @@ const SummaryContent = () => {
 
   useEffect(() => {
     // Inject print styles into the document (client-side only)
-    if (typeof window !== 'undefined') {
-      const styleSheet = document.createElement('style');
+    if (typeof window !== "undefined") {
+      const styleSheet = document.createElement("style");
       styleSheet.textContent = printStyles;
       document.head.appendChild(styleSheet);
 
       // Clean up localStorage on component mount
-      localStorage.removeItem('assessmentScores');
-      localStorage.removeItem('assessmentAnswers');
-      localStorage.removeItem('consentFormData');
+      localStorage.removeItem("assessmentScores");
+      localStorage.removeItem("assessmentAnswers");
+      localStorage.removeItem("consentFormData");
 
       return () => {
         document.head.removeChild(styleSheet);
@@ -179,7 +180,7 @@ const SummaryContent = () => {
   }, []);
 
   const handlePrint = () => {
-    const printWindow = window.open('', '', 'height=600,width=800');
+    const printWindow = window.open("", "", "height=600,width=800");
     if (printWindow) {
       printWindow.document.write(`
         <html>
@@ -226,42 +227,60 @@ const SummaryContent = () => {
                     <td>${consentData.signatureDate}</td>
                   </tr>
                 </table>
-                ${hasAssessment && selectedAssessments.length > 0 ? `
+                ${
+                  hasAssessment && selectedAssessments.length > 0
+                    ? `
                   <div class="print-section-title">Assessment Results Summary</div>
                   <table class="print-table">
                     <thead>
                       <tr>
                         <th>Assessment Name</th>
-                        <th style="width: 20%; text-align: center;">Score</th>
+                        <th style="width: 20%; text-align: center;">Weighted Score</th>
                         <th style="width: 30%;">Performance Level</th>
                       </tr>
                     </thead>
                     <tbody>
-                      ${selectedAssessments.map((assessmentId) => {
-                        const score = scores[assessmentId];
-                        let performanceLevel = 'Not Completed';
-                        if (score !== undefined && score !== null) {
-                          if (score >= 80) performanceLevel = 'Excellent';
-                          else if (score >= 60) performanceLevel = 'Good';
-                          else if (score >= 40) performanceLevel = 'Average';
-                          else performanceLevel = 'Needs Improvement';
-                        }
-                        return `
+                      ${selectedAssessments
+                        .map((assessmentId) => {
+                          const scoreData = scores[assessmentId];
+                          const normalizedScore = scoreData?.normalizedScore;
+                          let performanceLevel = "Not Completed";
+                          if (
+                            normalizedScore !== undefined &&
+                            normalizedScore !== null
+                          ) {
+                            if (normalizedScore >= 80)
+                              performanceLevel = "Excellent";
+                            else if (normalizedScore >= 60)
+                              performanceLevel = "Good";
+                            else if (normalizedScore >= 40)
+                              performanceLevel = "Average";
+                            else performanceLevel = "Needs Improvement";
+                          }
+                          return `
                           <tr>
                             <td>${assessmentNames[assessmentId]}</td>
-                            <td style="text-align: center;">${(score !== undefined && score !== null) ? `${score}/100` : 'Not completed'}</td>
+                            <td style="text-align: center;">${
+                              normalizedScore !== undefined &&
+                              normalizedScore !== null
+                                ? `${normalizedScore}/100`
+                                : "Not completed"
+                            }</td>
                             <td>${performanceLevel}</td>
                           </tr>
                         `;
-                      }).join('')}
+                        })
+                        .join("")}
                     </tbody>
                   </table>
                   <div class="print-important-text">
-                    Note: These assessment scores are for counseling purposes only and should be interpreted by qualified professionals.
+                    Note: Weighted scores are normalized to a 0-100 scale based on responses (Strongly Disagree: 1, Disagree: 2, Neutral: 3, Agree: 4, Strongly Agree: 5). These scores are for counseling purposes only and should be interpreted by qualified professionals.
                   </div>
-                ` : `
+                `
+                    : `
                   <div class="print-consent-text">No assessments were completed during this session. Consent form was submitted for counseling services only.</div>
-                `}
+                `
+                }
               </div>
 
               <!-- Page Break for Consent Form -->
@@ -385,39 +404,77 @@ const SummaryContent = () => {
               Summary Report
             </CardTitle>
             <div className="mt-6 text-lg text-gray-600 space-y-2 print:text-sm">
-              <p className="text-3xl font-semibold text-teal-700 print:text-lg">Aditya University</p>
+              <p className="text-3xl font-semibold text-teal-700 print:text-lg">
+                Aditya University
+              </p>
               <p className="text-xl print:text-base">Counseling Center</p>
-              <Badge variant="outline" className="mt-2 border-teal-600 text-teal-600 print:border-teal-600 print:text-teal-600">
+              <Badge
+                variant="outline"
+                className="mt-2 border-teal-600 text-teal-600 print:border-teal-600 print:text-teal-600"
+              >
                 Confidential
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="pt-12 print:pt-6">
             <div className="mb-12 print:mb-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-6 print:text-lg print:mb-4">Student Information</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-6 print:text-lg print:mb-4">
+                Student Information
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-xl text-gray-700 print:text-sm">
-                <div className="bg-white p-6 rounded-xl shadow-lg"><strong>Name:</strong> {consentData.name}</div>
-                <div className="bg-white p-6 rounded-xl shadow-lg"><strong>Roll Number:</strong> {consentData.rollNumber}</div>
-                <div className="bg-white p-6 rounded-xl shadow-lg"><strong>Phone Number:</strong> {consentData.phoneNumber}</div>
-                <div className="bg-white p-6 rounded-xl shadow-lg"><strong>Counselor Name:</strong> {consentData.counselorName}</div>
-                <div className="bg-white p-6 rounded-xl shadow-lg"><strong>Date:</strong> {consentData.signatureDate}</div>
+                <div className="bg-white p-6 rounded-xl shadow-lg">
+                  <strong>Name:</strong> {consentData.name}
+                </div>
+                <div className="bg-white p-6 rounded-xl shadow-lg">
+                  <strong>Roll Number:</strong> {consentData.rollNumber}
+                </div>
+                <div className="bg-white p-6 rounded-xl shadow-lg">
+                  <strong>Phone Number:</strong> {consentData.phoneNumber}
+                </div>
+                <div className="bg-white p-6 rounded-xl shadow-lg">
+                  <strong>Counselor Name:</strong> {consentData.counselorName}
+                </div>
+                <div className="bg-white p-6 rounded-xl shadow-lg">
+                  <strong>Date:</strong> {consentData.signatureDate}
+                </div>
               </div>
             </div>
 
             {hasAssessment && selectedAssessments.length > 0 && (
               <div className="mb-12 print:mb-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-6 print:text-lg print:mb-4">Assessment Scores</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-6 print:text-lg print:mb-4">
+                  Assessment Scores
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {selectedAssessments.map((assessmentId) => (
-                    <div key={assessmentId} className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-                      <p className="text-lg font-medium text-gray-800 print:text-sm">
-                        <strong>{assessmentNames[assessmentId]}:</strong>{' '}
-                        {(scores[assessmentId] !== undefined && scores[assessmentId] !== null)
-                          ? `${scores[assessmentId]}/100`
-                          : 'Not completed'}
-                      </p>
-                    </div>
-                  ))}
+                  {selectedAssessments.map((assessmentId) => {
+                    const scoreData = scores[assessmentId];
+                    const normalizedScore = scoreData?.normalizedScore;
+                    let performanceLevel = "Not Completed";
+                    if (
+                      normalizedScore !== undefined &&
+                      normalizedScore !== null
+                    ) {
+                      if (normalizedScore >= 80) performanceLevel = "Excellent";
+                      else if (normalizedScore >= 60) performanceLevel = "Good";
+                      else if (normalizedScore >= 40)
+                        performanceLevel = "Average";
+                      else performanceLevel = "Needs Improvement";
+                    }
+                    return (
+                      <div
+                        key={assessmentId}
+                        className="bg-white p-6 rounded-xl shadow-lg border border-gray-100"
+                      >
+                        <p className="text-lg font-medium text-gray-800 print:text-sm">
+                          <strong>{assessmentNames[assessmentId]}:</strong>{" "}
+                          {normalizedScore !== undefined &&
+                          normalizedScore !== null
+                            ? `${normalizedScore}/100 (${performanceLevel})`
+                            : "Not completed"}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -425,7 +482,8 @@ const SummaryContent = () => {
             {!hasAssessment && (
               <div className="mb-12 print:mb-6">
                 <p className="text-lg text-gray-700 print:text-sm">
-                  No assessments were taken. Consent form submitted successfully.
+                  No assessments were taken. Consent form submitted
+                  successfully.
                 </p>
               </div>
             )}
@@ -448,7 +506,13 @@ const SummaryContent = () => {
 // Wrap the component in Suspense at the page level
 export default function SummaryPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading summary...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading summary...
+        </div>
+      }
+    >
       <SummaryContent />
     </Suspense>
   );
