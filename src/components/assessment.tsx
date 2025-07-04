@@ -1,28 +1,52 @@
 "use client";
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useForm, FormProvider } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, CheckCircle, Circle, Lock, Users, Brain, Target, Lightbulb } from 'lucide-react';
+import { useRouter, useSearchParams } from "next/navigation";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle,
+  Circle,
+  Lock,
+  Users,
+  Brain,
+  Target,
+  Lightbulb,
+} from "lucide-react";
 
-import { Card, CardContent, CardTitle } from '@/components/ui/card';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { cn } from '@/lib/utils';
-import { Label } from './ui/label';
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
+import { Label } from "./ui/label";
 
 // Assessment questions with icons
-const assessmentQuestions: { [key: string]: { name: string; questions: string[]; icon: React.ReactNode; color: string; gradient: string } } = {
-  'assessment-1': {
-    name: 'Social Skills',
+const assessmentQuestions: {
+  [key: string]: {
+    name: string;
+    questions: string[];
+    icon: React.ReactNode;
+    color: string;
+    gradient: string;
+  };
+} = {
+  "assessment-1": {
+    name: "Social Skills",
     icon: <Users className="w-6 h-6" />,
-    color: 'from-blue-500 to-cyan-500',
-    gradient: 'from-blue-50 to-cyan-50',
+    color: "from-blue-500 to-cyan-500",
+    gradient: "from-blue-50 to-cyan-50",
     questions: [
       "I feel confident initiating conversations with new people.",
       "I find it easy to maintain eye contact during discussions.",
@@ -34,11 +58,11 @@ const assessmentQuestions: { [key: string]: { name: string; questions: string[];
       "I find it challenging to build rapport with people I don’t know well.",
     ],
   },
-  'assessment-2': {
-    name: 'Emotional Awareness',
+  "assessment-2": {
+    name: "Emotional Awareness",
     icon: <Brain className="w-6 h-6" />,
-    color: 'from-purple-500 to-pink-500',
-    gradient: 'from-purple-50 to-pink-50',
+    color: "from-purple-500 to-pink-500",
+    gradient: "from-purple-50 to-pink-50",
     questions: [
       "I can accurately identify my emotions in challenging situations.",
       "I frequently feel overwhelmed by intense emotions.",
@@ -50,11 +74,11 @@ const assessmentQuestions: { [key: string]: { name: string; questions: string[];
       "I struggle to empathize with others’ emotional experiences.",
     ],
   },
-  'assessment-3': {
-    name: 'Stress Management',
+  "assessment-3": {
+    name: "Stress Management",
     icon: <Circle className="w-6 h-6" />,
-    color: 'from-green-500 to-emerald-500',
-    gradient: 'from-green-50 to-emerald-50',
+    color: "from-green-500 to-emerald-500",
+    gradient: "from-green-50 to-emerald-50",
     questions: [
       "I use effective strategies to manage stress during exams.",
       "I often feel anxious even in low-pressure situations.",
@@ -66,11 +90,11 @@ const assessmentQuestions: { [key: string]: { name: string; questions: string[];
       "I use positive self-talk to cope with stressful situations.",
     ],
   },
-  'assessment-4': {
-    name: 'Team Dynamics',
+  "assessment-4": {
+    name: "Team Dynamics",
     icon: <Users className="w-6 h-6" />,
-    color: 'from-orange-500 to-red-500',
-    gradient: 'from-orange-50 to-red-50',
+    color: "from-orange-500 to-red-500",
+    gradient: "from-orange-50 to-red-50",
     questions: [
       "I feel comfortable contributing ideas in group projects.",
       "I often take a leadership role in team settings.",
@@ -82,11 +106,11 @@ const assessmentQuestions: { [key: string]: { name: string; questions: string[];
       "I communicate clearly to ensure team tasks are completed effectively.",
     ],
   },
-  'assessment-5': {
-    name: 'Motivation and Goals',
+  "assessment-5": {
+    name: "Motivation and Goals",
     icon: <Target className="w-6 h-6" />,
-    color: 'from-indigo-500 to-blue-500',
-    gradient: 'from-indigo-50 to-blue-50',
+    color: "from-indigo-500 to-blue-500",
+    gradient: "from-indigo-50 to-blue-50",
     questions: [
       "I set specific and achievable goals for my academic success.",
       "I maintain motivation even when tasks are challenging.",
@@ -98,11 +122,11 @@ const assessmentQuestions: { [key: string]: { name: string; questions: string[];
       "I seek opportunities to develop skills that support my goals.",
     ],
   },
-  'assessment-6': {
-    name: 'Problem Solving',
+  "assessment-6": {
+    name: "Problem Solving",
     icon: <Lightbulb className="w-6 h-6" />,
-    color: 'from-yellow-500 to-amber-500',
-    gradient: 'from-yellow-50 to-amber-50',
+    color: "from-yellow-500 to-amber-500",
+    gradient: "from-yellow-50 to-amber-50",
     questions: [
       "I approach problems with a structured and logical mindset.",
       "I feel overwhelmed when faced with complex challenges.",
@@ -120,7 +144,7 @@ const assessmentQuestions: { [key: string]: { name: string; questions: string[];
 const formSchema = (numQuestions: number) =>
   z.object({
     answers: z
-      .array(z.string().min(1, 'Please select an option for each question'))
+      .array(z.string().min(1, "Please select an option for each question"))
       .length(numQuestions, `Please answer all ${numQuestions} questions`),
   });
 
@@ -129,44 +153,43 @@ type FormValues = {
 };
 
 const scoreMap: { [key: string]: number } = {
-  'strongly-disagree': 1,
-  'disagree': 2,
-  'neutral': 3,
-  'agree': 4,
-  'strongly-agree': 5,
+  "strongly-disagree": 1,
+  disagree: 2,
+  neutral: 3,
+  agree: 4,
+  "strongly-agree": 5,
 };
 
-// Updated pleasant color scheme
 const likertOptions = [
-  { 
-    value: 'strongly-disagree', 
-    label: 'Strongly Disagree', 
-    color: 'from-slate-500 to-slate-600', 
-    bgColor: 'bg-slate-50 border-slate-200 hover:bg-slate-100' 
+  {
+    value: "strongly-disagree",
+    label: "Strongly Disagree",
+    color: "from-red-500 to-pink-500",
+    bgColor: "bg-red-100 text-red-700 border-red-200",
   },
-  { 
-    value: 'disagree', 
-    label: 'Disagree', 
-    color: 'from-blue-400 to-blue-500', 
-    bgColor: 'bg-blue-50 border-blue-200 hover:bg-blue-100' 
+  {
+    value: "disagree",
+    label: "Disagree",
+    color: "from-orange-500 to-yellow-500",
+    bgColor: "bg-orange-100 text-orange-700 border-orange-200",
   },
-  { 
-    value: 'neutral', 
-    label: 'Neutral', 
-    color: 'from-indigo-400 to-indigo-500', 
-    bgColor: 'bg-indigo-50 border-indigo-200 hover:bg-indigo-100' 
+  {
+    value: "neutral",
+    label: "Neutral",
+    color: "from-gray-400 to-gray-600",
+    bgColor: "bg-gray-100 text-gray-700 border-gray-200",
   },
-  { 
-    value: 'agree', 
-    label: 'Agree', 
-    color: 'from-purple-400 to-purple-500', 
-    bgColor: 'bg-purple-50 border-purple-200 hover:bg-purple-100' 
+  {
+    value: "agree",
+    label: "Agree",
+    color: "from-blue-500 to-cyan-500",
+    bgColor: "bg-blue-100 text-blue-700 border-blue-200",
   },
-  { 
-    value: 'strongly-agree', 
-    label: 'Strongly Agree', 
-    color: 'from-emerald-400 to-emerald-500', 
-    bgColor: 'bg-emerald-50 border-emerald-200 hover:bg-emerald-100' 
+  {
+    value: "strongly-agree",
+    label: "Strongly Agree",
+    color: "from-green-500 to-emerald-500",
+    bgColor: "bg-green-100 text-green-700 border-green-200",
   },
 ];
 
@@ -178,7 +201,7 @@ export default function Assessment({ params }: { params: { id: string } }) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema(numQuestions)),
     defaultValues: {
-      answers: Array(numQuestions).fill(''),
+      answers: Array(numQuestions).fill(""),
     },
   });
 
@@ -186,23 +209,28 @@ export default function Assessment({ params }: { params: { id: string } }) {
   const searchParams = useSearchParams();
 
   const consentData = {
-    name: searchParams.get('name') || 'Not Provided',
-    rollNumber: searchParams.get('rollNumber') || 'Not Provided',
-    phoneNumber: searchParams.get('phoneNumber') || 'Not Provided',
-    counselorName: searchParams.get('counselorName') || 'Not Provided',
-    signatureDate: searchParams.get('signatureDate') || 'Not Provided',
+    name: searchParams.get("name") || "Not Provided",
+    rollNumber: searchParams.get("rollNumber") || "Not Provided",
+    phoneNumber: searchParams.get("phoneNumber") || "Not Provided",
+    counselorName: searchParams.get("counselorName") || "Not Provided",
+    signatureDate: searchParams.get("signatureDate") || "Not Provided",
   };
 
-  const selectedAssessments = searchParams.get('selectedAssessments')?.split(',') || [];
-  const currentAssessmentIndex = parseInt(searchParams.get('currentAssessmentIndex') || '0');
-  const numAssessments = parseInt(searchParams.get('numAssessments') || '0');
+  const selectedAssessments =
+    searchParams.get("selectedAssessments")?.split(",") || [];
+  const currentAssessmentIndex = parseInt(
+    searchParams.get("currentAssessmentIndex") || "0"
+  );
+  const numAssessments = parseInt(searchParams.get("numAssessments") || "0");
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSubmitButton, setShowSubmitButton] = useState(false);
 
-  const watchedAnswers = form.watch('answers');
-  const answeredQuestions = watchedAnswers.filter(answer => answer !== '').length;
+  const watchedAnswers = form.watch("answers");
+  const answeredQuestions = watchedAnswers.filter(
+    (answer) => answer !== ""
+  ).length;
   const progressPercentage = (answeredQuestions / numQuestions) * 100;
 
   useEffect(() => {
@@ -222,8 +250,12 @@ export default function Assessment({ params }: { params: { id: string } }) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
         <Card className="p-8 text-center">
-          <CardTitle className="text-2xl text-red-600 mb-4">Assessment Not Found</CardTitle>
-          <p className="text-gray-600">The requested assessment could not be found.</p>
+          <CardTitle className="text-2xl text-red-600 mb-4">
+            Assessment Not Found
+          </CardTitle>
+          <p className="text-gray-600">
+            The requested assessment could not be found.
+          </p>
         </Card>
       </div>
     );
@@ -231,10 +263,12 @@ export default function Assessment({ params }: { params: { id: string } }) {
 
   const onAnswerChange = (value: string, index: number) => {
     form.setValue(`answers.${index}`, value);
-    
+
     // Auto-advance to next unanswered question
     setTimeout(() => {
-      const nextUnansweredIndex = watchedAnswers.findIndex((answer, i) => i > index && answer === '');
+      const nextUnansweredIndex = watchedAnswers.findIndex(
+        (answer, i) => i > index && answer === ""
+      );
       if (nextUnansweredIndex !== -1) {
         setCurrentQuestion(nextUnansweredIndex);
       } else if (index + 1 < numQuestions) {
@@ -249,18 +283,35 @@ export default function Assessment({ params }: { params: { id: string } }) {
 
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const score = data.answers.reduce((total, answer) => total + scoreMap[answer], 0);
-    const storedScores = JSON.parse(localStorage.getItem('assessmentScores') || '{}');
-    storedScores[currentAssessmentId] = score;
-    localStorage.setItem('assessmentScores', JSON.stringify(storedScores));
 
-    const storedAnswers = JSON.parse(localStorage.getItem('assessmentAnswers') || '{}');
+    // Simulate API call delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Calculate raw score
+    const rawScore = data.answers.reduce(
+      (total, answer) => total + scoreMap[answer],
+      0
+    );
+
+    // Normalize score to 0-100 scale
+    const minScore = numQuestions * 1; // Minimum score (1 per question)
+    const maxScore = numQuestions * 5; // Maximum score (5 per question)
+    const normalizedScore = Math.round(
+      ((rawScore - minScore) / (maxScore - minScore)) * 100
+    );
+
+    // Store both raw and normalized scores
+    const storedScores = JSON.parse(
+      localStorage.getItem("assessmentScores") || "{}"
+    );
+    storedScores[currentAssessmentId] = { rawScore, normalizedScore };
+    localStorage.setItem("assessmentScores", JSON.stringify(storedScores));
+
+    const storedAnswers = JSON.parse(
+      localStorage.getItem("assessmentAnswers") || "{}"
+    );
     storedAnswers[currentAssessmentId] = data.answers;
-    localStorage.setItem('assessmentAnswers', JSON.stringify(storedAnswers));
+    localStorage.setItem("assessmentAnswers", JSON.stringify(storedAnswers));
 
     const nextIndex = currentAssessmentIndex + 1;
     if (nextIndex < numAssessments) {
@@ -270,7 +321,7 @@ export default function Assessment({ params }: { params: { id: string } }) {
         phoneNumber: consentData.phoneNumber,
         counselorName: consentData.counselorName,
         signatureDate: consentData.signatureDate,
-        selectedAssessments: selectedAssessments.join(','),
+        selectedAssessments: selectedAssessments.join(","),
         currentAssessmentIndex: nextIndex.toString(),
         numAssessments: numAssessments.toString(),
       }).toString();
@@ -282,15 +333,17 @@ export default function Assessment({ params }: { params: { id: string } }) {
         phoneNumber: consentData.phoneNumber,
         counselorName: consentData.counselorName,
         signatureDate: consentData.signatureDate,
-        selectedAssessments: selectedAssessments.join(','),
-        hasAssessment: 'true',
+        selectedAssessments: selectedAssessments.join(","),
+        hasAssessment: "true",
       }).toString();
       router.push(`/summary?${query}`);
     }
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${currentAssessment.gradient} p-4 sm:p-6`}>
+    <div
+      className={`min-h-screen bg-gradient-to-br ${currentAssessment.gradient} p-4 sm:p-6`}
+    >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
@@ -300,14 +353,23 @@ export default function Assessment({ params }: { params: { id: string } }) {
           className="text-center mb-8"
         >
           <div className="flex items-center justify-center mb-4">
-            <div className={`p-3 rounded-full bg-gradient-to-r ${currentAssessment.color} text-white shadow-lg`}>
+            <div
+              className={`p-3 rounded-full bg-gradient-to-r ${currentAssessment.color} text-white shadow-lg`}
+            >
               {currentAssessment.icon}
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">{currentAssessment.name}</h1>
-          <div className="text-xl font-semibold text-gray-700 mb-1">Aditya University</div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            {currentAssessment.name}
+          </h1>
+          <div className="text-xl font-semibold text-gray-700 mb-1">
+            Aditya University
+          </div>
           <div className="text-sm text-gray-600 mb-4">Counseling Center</div>
-          <Badge variant="outline" className="border-gray-400 text-gray-600 mb-6">
+          <Badge
+            variant="outline"
+            className="border-gray-400 text-gray-600 mb-6"
+          >
             <Lock className="w-3 h-3 mr-1" />
             Confidential Assessment
           </Badge>
@@ -324,14 +386,15 @@ export default function Assessment({ params }: { params: { id: string } }) {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="text-sm font-medium text-gray-700">
-                  Progress: {answeredQuestions} of {numQuestions} questions completed
+                  Progress: {answeredQuestions} of {numQuestions} questions
+                  completed
                 </div>
                 <div className="text-sm font-bold text-gray-900">
                   {Math.round(progressPercentage)}%
                 </div>
               </div>
               <Progress value={progressPercentage} className="h-2 mb-4" />
-              
+
               {/* Question Navigation */}
               <div className="flex flex-wrap gap-2 justify-center">
                 {currentAssessment.questions.map((_, index) => (
@@ -340,7 +403,7 @@ export default function Assessment({ params }: { params: { id: string } }) {
                     onClick={() => navigateToQuestion(index)}
                     className={cn(
                       "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 hover:scale-110",
-                      watchedAnswers[index] 
+                      watchedAnswers[index]
                         ? "bg-green-500 text-white shadow-lg"
                         : currentQuestion === index
                         ? `bg-gradient-to-r ${currentAssessment.color} text-white shadow-lg`
@@ -369,13 +432,17 @@ export default function Assessment({ params }: { params: { id: string } }) {
             <CardContent className="p-8">
               <div className="mb-6 text-center">
                 <p className="text-gray-600 text-lg leading-relaxed max-w-2xl mx-auto">
-                  Please respond to each statement honestly. Your responses are completely confidential 
-                  and will help us provide you with personalized support and guidance.
+                  Please respond to each statement honestly. Your responses are
+                  completely confidential and will help us provide you with
+                  personalized support and guidance.
                 </p>
               </div>
 
               <FormProvider {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-8"
+                >
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={currentQuestion}
@@ -391,11 +458,14 @@ export default function Assessment({ params }: { params: { id: string } }) {
                         render={({ field }) => (
                           <FormItem className="space-y-6">
                             <FormLabel className="text-2xl font-semibold text-gray-800 leading-relaxed block text-center">
-                              {currentQuestion + 1}. {currentAssessment.questions[currentQuestion]}
+                              {currentQuestion + 1}.{" "}
+                              {currentAssessment.questions[currentQuestion]}
                             </FormLabel>
                             <FormControl>
                               <RadioGroup
-                                onValueChange={(value) => onAnswerChange(value, currentQuestion)}
+                                onValueChange={(value) =>
+                                  onAnswerChange(value, currentQuestion)
+                                }
                                 value={field.value}
                                 className="grid grid-cols-1 sm:grid-cols-5 gap-4 mt-8"
                               >
@@ -406,12 +476,14 @@ export default function Assessment({ params }: { params: { id: string } }) {
                                     whileTap={{ scale: 0.95 }}
                                     className="flex flex-col items-center space-y-2"
                                   >
-                                    <div className={cn(
-                                      "w-full p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer",
-                                      field.value === option.value
-                                        ? `bg-gradient-to-r ${option.color} text-white border-transparent shadow-lg transform scale-105`
-                                        : `${option.bgColor}`
-                                    )}>
+                                    <div
+                                      className={cn(
+                                        "w-full p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer",
+                                        field.value === option.value
+                                          ? `bg-gradient-to-r ${option.color} text-white border-transparent shadow-lg transform scale-105`
+                                          : `${option.bgColor}`
+                                      )}
+                                    >
                                       <RadioGroupItem
                                         value={option.value}
                                         id={`q${currentQuestion}-${option.value}`}
@@ -440,7 +512,9 @@ export default function Assessment({ params }: { params: { id: string } }) {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
+                      onClick={() =>
+                        setCurrentQuestion(Math.max(0, currentQuestion - 1))
+                      }
                       disabled={currentQuestion === 0}
                       className="flex items-center space-x-2"
                     >
@@ -455,7 +529,11 @@ export default function Assessment({ params }: { params: { id: string } }) {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setCurrentQuestion(Math.min(numQuestions - 1, currentQuestion + 1))}
+                      onClick={() =>
+                        setCurrentQuestion(
+                          Math.min(numQuestions - 1, currentQuestion + 1)
+                        )
+                      }
                       disabled={currentQuestion === numQuestions - 1}
                       className="flex items-center space-x-2"
                     >
